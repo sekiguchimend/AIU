@@ -2,29 +2,34 @@
 
 import Header from "../components/Header";
 import { db } from "../firebase/Firebase";
-import { collection, query, orderBy, limit, onSnapshot } from 'firebase/firestore'
-import { useState, useEffect } from "react";
+import { collection, query, orderBy, limit, onSnapshot } from 'firebase/firestore';
+import { useState, useEffect, useRef } from "react";
+
+interface Message {
+    id: string;
+    data: string; // ここでメッセージのデータ型を指定
+}
 
 export default function Home() {
-    const [messages, setMessages] = useState([])
+    const [messages, setMessages] = useState<Message[]>([]);
 
     useEffect(() => {
-        const messageRef = collection(db, "message")
-        const q = query(messageRef, orderBy("createdat", "desc"), limit(50))
+        const messageRef = collection(db, "message");
+        const q = query(messageRef, orderBy("createdat", "desc"), limit(50));
         
         const unsubscribe = onSnapshot(q, (snap) => {
-            const messagesData = snap.docs.map((doc) => ({
+            const messagesData: Message[] = snap.docs.map((doc) => ({
                 id: doc.id,
-                ...doc.data()
-            }))
-            setMessages(messagesData)
-            console.log("Retrieved messages:", messagesData) // デバッグ用
-        })
+                data: doc.data().data as string, // Firestore ドキュメントのデータ型に合わせてキャスト
+            }));
+            setMessages(messagesData);
+            console.log("Retrieved messages:", messagesData); // デバッグ用
+        });
 
-        return () => unsubscribe()
-    }, [])
+        return () => unsubscribe();
+    }, []);
 
-    const adjustHeight = (element) => {
+    const adjustHeight = (element: HTMLTextAreaElement) => {
         element.style.height = 'auto';
         element.style.height = `${element.scrollHeight}px`;
     };
@@ -33,7 +38,6 @@ export default function Home() {
         <>
         <Header />
         <div className="container">
-           
             <main className="main-content">
                 <div className="message-list">
                     {messages.map((item) => (
@@ -109,5 +113,5 @@ export default function Home() {
             `}</style>
         </div>
         </>
-    )
+    );
 }

@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react";
+
+import { useState, ChangeEvent, MouseEvent } from "react";
 import { db } from "./firebase/Firebase";
 import { collection, addDoc } from "firebase/firestore";
 import { Fab, Alert } from "@mui/material";
@@ -7,15 +8,16 @@ import NavigationIcon from '@mui/icons-material/Navigation'; // アイコンを�
 import Header from "./components/Header";
 
 export default function Home() {
-  const [input, setInput] = useState("");
-  const [error, setError] = useState(""); // エラーメッセージの状態を追加
-  const [loading, setLoading] = useState(false);
+  const [input, setInput] = useState<string>("");
+  const [error, setError] = useState<string>(""); // エラーメッセージの状態を追加
+  const [loading, setLoading] = useState<boolean>(false);
 
-  const handleChange = (e) => {
+  const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     setInput(e.target.value);
   };
 
-  const handleClick = async () => {
+  const handleClick = async (e: MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault(); // ボタンのデフォルト動作を防ぐ
     if (input.trim() === "") {
       setError("入力をしてください"); // エラーメッセージを設定
       return;
@@ -52,7 +54,12 @@ export default function Home() {
           onChange={handleChange}
           value={input}
         />
-        <Fab variant="extended" onClick={handleClick} disabled={loading} style={{ marginTop: "16px" }}>
+        <Fab 
+          variant="extended" 
+          onClick={handleClick} 
+          disabled={loading} 
+          style={{ marginTop: "16px" }}
+        >
           <NavigationIcon sx={{ mr: 1 }} />
           {loading ? "loading" : "SEND"}
         </Fab>
